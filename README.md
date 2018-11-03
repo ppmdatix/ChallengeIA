@@ -29,3 +29,7 @@ It runs on a jupyter-notebook with Python 3.
 
 ## Packages
 There are some packages needed, but the most important one is Keras. 
+
+
+#### Personal
+best so far _mix.csv_
