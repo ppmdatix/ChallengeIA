@@ -1,11 +1,10 @@
 # ChallengeIA
 IA Challenge, as part of Machine Learning lectures at ENS Lyon
 
-:::info
+
 Authors : Paul Peseux & Clement Bénesse
 Team name : **ENStagramme**
 Date : Late 2018 
-:::
 
 ## Goal
 The purpose of this challenge is to classify images containing (or not) windmills.
