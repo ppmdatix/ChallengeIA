@@ -179,7 +179,8 @@ def loadDATA(PATH,full=False, some=False, little=10):
     return XTRAIN, train_label1, x_test
 
 
-def soumissionCSV(prediction, name):
+def soumissionCSV(prediction, name,PATH):
+    print("e")
     test_path = PATH+'/data_airbus_defi/test/'
     test_data = os.listdir(test_path)
     X = pd.DataFrame()
