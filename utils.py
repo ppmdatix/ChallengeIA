@@ -10,23 +10,31 @@ from keras.preprocessing import image
 ########
 # VIZU #
 ########
-def visualize_incorrect_labels(x_data, y_real, y_predicted):
+def lastErrors(XTRAIN,model,size=1000):
+    Xviz = XTRAIN[:size]
+    lab = train_labels[:size]
+    p = model.predict(Xviz)
+    pr = [cut_half(x) for x in p]
+    i=0
+    X = []
+    l = []
+    for reel, devine in zip(lab,pr):
+        if reel != devine:
+            X.append(Xviz[i])
+            l.append(reel)
+        i+=1
+    return np.array(X), l
+
+def visualize_incorrect_labels(x_data, y_real):
     count = 0
-    figure = plt.figure()
-    incorrect_label_indices = (y_real != y_predicted)
-    y_real = y_real[incorrect_label_indices]
-    y_predicted = y_predicted[incorrect_label_indices]
-    x_data = x_data[incorrect_label_indices, :, :, :]
-
     maximum_square = np.ceil(np.sqrt(x_data.shape[0]))
-
+    figure = plt.figure(figsize=((maximum_square * 2,maximum_square * 2)))
     for i in range(x_data.shape[0]):
         count += 1
         figure.add_subplot(maximum_square, maximum_square, count)
         plt.imshow(x_data[i, :, :, :])
         plt.axis('off')
-        plt.title("Predicted: " + str(int(y_predicted[i])) + ", Real: " + str(int(y_real[i])), fontsize=10)
-
+        plt.title(" Real: " + str(int(y_real[i])), fontsize=10)
     plt.show()
     
 def plotLearning(history):
@@ -195,4 +203,4 @@ def prediction_from_model(model,x_test):
     prediction = [cut_half(x) for x in pred]
     print("some predictions")
     print(prediction[:9])
-    return prediction
+    return prediction, pred
