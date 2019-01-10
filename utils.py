@@ -10,9 +10,25 @@ from keras.preprocessing import image
 ########
 # VIZU #
 ########
-def lastErrors(XTRAIN,model,size=1000):
+
+def probaErrors(pred,predProba,label,print_mode=True,bins=50):
+    probas = []
+    for reel, devine, proba in zip(label,pred,predProba):
+        if reel != devine:
+            probas.append(proba)
+    output = [val[0] for val in probas]
+    if print_mode:
+        plt.hist([p[0] for p in predProba], normed=True, bins=bins, label="prediction")
+        plt.hist(output, normed=True, bins=bins, label="predictionProba where error")
+        plt.legend()
+        plt.show()
+        plt.close()
+    return output
+
+
+def lastErrors(XTRAIN,label,model,size=1000):
     Xviz = XTRAIN[:size]
-    lab = train_labels[:size]
+    lab = label[:size]
     p = model.predict(Xviz)
     pr = [cut_half(x) for x in p]
     i=0
@@ -25,7 +41,7 @@ def lastErrors(XTRAIN,model,size=1000):
         i+=1
     return np.array(X), l
 
-def visualize_incorrect_labels(x_data, y_real):
+def visualize_incorrect_labels(x_data, y_real, title="Real: "):
     count = 0
     maximum_square = np.ceil(np.sqrt(x_data.shape[0]))
     figure = plt.figure(figsize=((maximum_square * 2,maximum_square * 2)))
@@ -34,7 +50,34 @@ def visualize_incorrect_labels(x_data, y_real):
         figure.add_subplot(maximum_square, maximum_square, count)
         plt.imshow(x_data[i, :, :, :])
         plt.axis('off')
-        plt.title(" Real: " + str(int(y_real[i])), fontsize=10)
+        plt.title(title + str(int(y_real[i])), fontsize=10)
+    plt.show()
+    
+def visualizeUncertainLabels(x_test,probaPred,threshold):
+    i=0
+    X = []
+    ps = []
+    for proba in probaPred:
+        if abs(0.5 - proba) < threshold:
+            X.append(x_test[i])
+            ps.append(proba)
+        i+=1
+        if len(ps) > 100:
+            break
+    
+    x_data = np.array(X)
+    count = 0
+    #x_data = x_data[incorrect_label_indices, :, :, :]
+    maximum_square = np.ceil(np.sqrt(x_data.shape[0]))
+    figure = plt.figure(figsize=((maximum_square * 2,maximum_square * 2)))
+
+    for j in range(x_data.shape[0]):
+        count += 1
+        figure.add_subplot(maximum_square, maximum_square, count)
+        plt.imshow(x_data[j, :, :, :])
+        plt.axis('off')
+        plt.title(" Estim: " + str(ps[j]), fontsize=10)
+
     plt.show()
     
 def plotLearning(history):
@@ -89,8 +132,8 @@ def loadModel( name):
 ######################
 # DATA PREPROCESSING #
 ######################
-def cut_half(x):
-    if x < .5:
+def cut_half(x, threshold=.5):
+    if x < threshold:
         return 0
     else:
         return 1
@@ -188,7 +231,6 @@ def loadDATA(PATH,full=False, some=False, little=10):
 
 
 def soumissionCSV(prediction, name,PATH):
-    print("e")
     test_path = PATH+'/data_airbus_defi/test/'
     test_data = os.listdir(test_path)
     X = pd.DataFrame()
@@ -198,9 +240,9 @@ def soumissionCSV(prediction, name,PATH):
     X.to_csv("soumissions/"+name + ".csv", sep=";")
     print("CSV file written")
 
-def prediction_from_model(model,x_test):
+def prediction_from_model(model,x_test, threshold=.5):
     pred = model.predict(x_test)
-    prediction = [cut_half(x) for x in pred]
+    prediction = [cut_half(x,threshold) for x in pred]
     print("some predictions")
     print(prediction[:9])
     return prediction, pred
