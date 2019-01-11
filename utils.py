@@ -10,6 +10,22 @@ from keras.preprocessing import image
 ########
 # VIZU #
 ########
+def findThreshod(predproba, labels, print_mode=True):
+    length = len(labels)
+    thetas = [theta * .01 for theta in range(1,100)]
+    accuracies = []
+    for theta in thetas:
+        predtheta = [int(p > theta) for p in predproba]
+        accuracy = sum([int(p*1. == label * 1.) for p, label in zip(predtheta,labels)]) / length
+        accuracies.append(accuracy)
+    thetaOpt = np.argmax(accuracies)*.01 + .01
+    if print_mode:
+        plt.plot(thetas,accuracies)
+        plt.axvline(thetaOpt)
+        plt.title("Accuracy accordind threshold")
+        plt.show()
+        plt.close()
+    return thetaOpt
 
 def probaErrors(pred,predProba,label,print_mode=True,bins=50):
     probas = []
